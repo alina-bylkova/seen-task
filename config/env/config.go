@@ -12,7 +12,7 @@ type Config struct {
 	DbUser               string        `mapstructure:"db_user"`
 	DbPassword           string        `mapstructure:"db_password"`
 	DbHost               string        `mapstructure:"db_host"`
-	DbPort               string        `mapstructure:"db_port"`
+	DbPort               int           `mapstructure:"db_port"`
 	DbName               string        `mapstructure:"db_name"`
 	MaxConnectionPool    int           `mapstructure:"max_connection_pool"`
 	MaxConnectionTimeout time.Duration `mapstructure:"max_connection_timeout"`
@@ -22,7 +22,8 @@ func (c *Config) setDefaults() {
 	defaults := map[string]interface{}{
 		"server_address":         ":8080",
 		"db_host":                "localhost",
-		"db_port":                "5432",
+		"db_port":                5432,
+		"db_name":                "seen",
 		"max_connection_pool":    3,
 		"max_connection_timeout": time.Minute,
 	}
@@ -44,7 +45,7 @@ func (c *Config) setFromEnvironment() error {
 	c.DbUser = viper.GetString("db_user")
 	c.DbPassword = viper.GetString("db_password")
 	c.DbHost = viper.GetString("db_host")
-	c.DbPort = viper.GetString("db_port")
+	c.DbPort = viper.GetInt("db_port")
 	c.DbName = viper.GetString("db_name")
 	c.MaxConnectionPool = viper.GetInt("max_connection_pool")
 	c.MaxConnectionTimeout = viper.GetDuration("max_connection_timeout")

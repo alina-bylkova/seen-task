@@ -1,6 +1,6 @@
 package db
 
-type DataLayer interface {
+type Layer interface {
 	Add(Recipient)
 	GetAll() []Recipient
 }

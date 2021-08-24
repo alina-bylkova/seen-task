@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RecipientsPost(db db.DataLayer) gin.HandlerFunc {
+func RecipientsPost(db db.Layer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		c.JSON(http.StatusCreated, "")
