@@ -9,7 +9,7 @@ import (
 
 func RecipientsGet(db db.Layer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		result := db.GetAll()
+		result, _ := db.GetAll()
 		c.JSON(http.StatusOK, result)
 	}
 }

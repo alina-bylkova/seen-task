@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/alinabylkova/seen-task/config/db"
 	"github.com/alinabylkova/seen-task/config/env"
+	"github.com/alinabylkova/seen-task/db"
 	"github.com/alinabylkova/seen-task/model"
 	"github.com/gin-gonic/gin"
 )

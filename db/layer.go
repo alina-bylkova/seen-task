@@ -1,13 +1,11 @@
 package db
 
-type Layer interface {
-	Add(Recipient)
-	GetAll() []Recipient
-}
+import (
+	"github.com/alinabylkova/seen-task/model"
+)
 
-type Recipient struct {
-	Id    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone uint32 `json:"phone"`
+type Layer interface {
+	Get(*model.Recipient) ([]*model.Recipient, error)
+	GetAll() ([]*model.Recipient, error)
+	Add(*model.Recipient) (int64, error)
 }

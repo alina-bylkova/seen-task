@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+    postgre:
+        image: postgres:alpine3.14
+        container_name: postgre
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_PASSWORD: root
+            POSTGRES_USER: root
+            POSTGRES_DB: seen
+    
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - "9000:8080"
