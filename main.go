@@ -36,7 +36,7 @@ func main() {
 	authorized.GET("recipients", api.GetRecipients(db))
 	authorized.GET("recipients/:id", api.GetRecipientById(db))
 	authorized.POST("recipients", api.PostRecipient(db))
-	authorized.POST("event", api.PostEvent(db))
+	authorized.POST("events", api.PostEvent(db))
 
 	server := &http.Server{
 		Addr:    config.ServerAddress,
