@@ -15,9 +15,15 @@ func GetRecipientById(dbLayer db.Layer) gin.HandlerFunc {
 		idString := c.Param("id")
 		id, err := strconv.ParseInt(idString, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusPreconditionFailed, err.Error())
+			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
+
+		if err := validateId(id); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
 		recipient := &model.Recipient{ID: id}
 		result, err := dbLayer.Get(recipient)
 		if isErrorCaught(err, c) {
@@ -41,6 +47,22 @@ func GetRecipients(dbLayer db.Layer) gin.HandlerFunc {
 			c.JSON(http.StatusOK, result)
 			return
 		}
+
+		if err := validateName(name); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err := validateEmail(email); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err := validatePhone(phone); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
 		recipient := &model.Recipient{Name: name, Email: email, Phone: phone}
 		result, err := dbLayer.Get(recipient)
 		if isErrorCaught(err, c) {

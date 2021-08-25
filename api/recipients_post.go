@@ -15,6 +15,10 @@ func PostRecipient(dbLayer db.Layer) gin.HandlerFunc {
 		if err := c.ShouldBindJSON(requestBody); isErrorCaught(err, c) {
 			return
 		}
+		if err := validateEmail(requestBody.Email); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
 		result, err := dbLayer.Add(requestBody)
 		if isErrorCaught(err, c) {
 			return
