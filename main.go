@@ -24,9 +24,13 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("recipients", api.GetRecipients(db))
-	r.GET("recipients/:id", api.GetRecipientById(db))
-	r.POST("recipients", api.PostRecipient(db))
+	authorized := r.Group("/api", gin.BasicAuth(gin.Accounts{
+		config.AuthUser: config.AuthPassword,
+	}))
+
+	authorized.GET("recipients", api.GetRecipients(db))
+	authorized.GET("recipients/:id", api.GetRecipientById(db))
+	authorized.POST("recipients", api.PostRecipient(db))
 
 	r.Run()
 }

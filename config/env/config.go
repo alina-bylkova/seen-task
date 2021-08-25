@@ -16,6 +16,8 @@ type Config struct {
 	DbName               string        `mapstructure:"db_name"`
 	MaxConnectionPool    int           `mapstructure:"max_connection_pool"`
 	MaxConnectionTimeout time.Duration `mapstructure:"max_connection_timeout"`
+	AuthUser             string        `mapstructure:"auth_user"`
+	AuthPassword         string        `mapstructure:"auth_password"`
 }
 
 func (c *Config) setDefaults() {
@@ -49,6 +51,8 @@ func (c *Config) setFromEnvironment() error {
 	c.DbName = viper.GetString("db_name")
 	c.MaxConnectionPool = viper.GetInt("max_connection_pool")
 	c.MaxConnectionTimeout = viper.GetDuration("max_connection_timeout")
+	c.AuthUser = viper.GetString("auth_user")
+	c.AuthPassword = viper.GetString("auth_password")
 
 	if err := viper.Unmarshal(&c); err != nil {
 		return err
