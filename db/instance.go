@@ -8,6 +8,7 @@ import (
 
 	"github.com/alinabylkova/seen-task/config/env"
 	"github.com/alinabylkova/seen-task/model"
+	"github.com/alinabylkova/seen-task/model/dto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -89,8 +90,8 @@ func (i *Instance) GetAll() ([]*model.Recipient, error) {
 	return recipients, nil
 }
 
-// Add creates new recipient in the database based on provided name, email and phone number
-func (i *Instance) Add(r *model.Recipient) (int64, error) {
+// AddRecipient creates new recipient in the database based on provided name, email and phone number
+func (i *Instance) AddRecipient(r *model.Recipient) (int64, error) {
 	result := i.Gorm.Create(r)
 	if result.RowsAffected == 0 {
 		if result.Error != nil {
@@ -101,4 +102,57 @@ func (i *Instance) Add(r *model.Recipient) (int64, error) {
 		return 0, errors.New("Recipient wasn't stored to db")
 	}
 	return r.ID, nil
+}
+
+// AddEvent creates or updates event in the database based on the provided recipient_id, video_id and event_type
+func (i *Instance) AddEvent(e *dto.Event) error {
+	event := &model.Event{}
+	searchElement := &model.Event{
+		RecipientID: e.RecipientID,
+		VideoID:     e.VideoID,
+	}
+
+	searchResult := i.Gorm.Where(searchElement).Find(event)
+	if searchResult.RowsAffected == 0 {
+		if searchResult.Error != nil {
+			log.Print("Database error: ", searchResult.Error)
+			return &DbError{originalError: searchResult.Error}
+		}
+		event.RecipientID = e.RecipientID
+		event.VideoID = e.VideoID
+
+		if e.EventType == dto.LpHits {
+			event.LpHits += 1
+		}
+		if e.EventType == dto.VideoPlays {
+			event.VideoPlays += 1
+		}
+		createResult := i.Gorm.Create(event)
+		if createResult.RowsAffected == 0 {
+			if createResult.Error != nil {
+				log.Print("Database error: ", createResult.Error)
+				return &DbError{originalError: createResult.Error}
+			}
+			log.Print("Event wasn't stored to db")
+			return errors.New("Event wasn't stored to db")
+		}
+		return nil
+	}
+	if e.EventType == dto.LpHits {
+		event.LpHits += 1
+	}
+	if e.EventType == dto.VideoPlays {
+		event.VideoPlays += 1
+	}
+
+	updateResult := i.Gorm.Save(event)
+	if updateResult.RowsAffected == 0 {
+		if updateResult.Error != nil {
+			log.Print("Database error: ", updateResult.Error)
+			return &DbError{originalError: updateResult.Error}
+		}
+		log.Print("Event wasn't updated in db")
+		return errors.New("Event wasn't updated in db")
+	}
+	return nil
 }

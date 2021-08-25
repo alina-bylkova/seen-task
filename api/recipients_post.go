@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// PostRecipient created a new recipient in the database based on the provided name, email and phone number
+// PostRecipient creates a new recipient in the database based on the provided name, email and phone number
 func PostRecipient(dbLayer db.Layer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestBody := &model.Recipient{}
@@ -19,7 +19,7 @@ func PostRecipient(dbLayer db.Layer) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
-		result, err := dbLayer.Add(requestBody)
+		result, err := dbLayer.AddRecipient(requestBody)
 		if isErrorCaught(err, c) {
 			return
 		}

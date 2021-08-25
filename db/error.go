@@ -1,5 +1,6 @@
 package db
 
+// DbError is a custom error that shouldn't be sent out to clients
 type DbError struct {
 	originalError error
 }
