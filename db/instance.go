@@ -55,6 +55,7 @@ func (i *Instance) CloseDb() {
 	}
 }
 
+// Get selects recipient(s) from the database based on the provided id, name, email and phone number
 func (i *Instance) Get(r *model.Recipient) ([]*model.Recipient, error) {
 	recipients := []*model.Recipient{}
 	result := i.Gorm.
@@ -63,7 +64,7 @@ func (i *Instance) Get(r *model.Recipient) ([]*model.Recipient, error) {
 	if result.RowsAffected == 0 {
 		if result.Error != nil {
 			log.Print("Database error: ", result.Error)
-			return nil, result.Error
+			return nil, &DbError{originalError: result.Error}
 		}
 		log.Print("Recipient(s) not found: ", r)
 		return nil, errors.New("Recipient(s) not found")
@@ -72,27 +73,29 @@ func (i *Instance) Get(r *model.Recipient) ([]*model.Recipient, error) {
 	return recipients, nil
 }
 
+// GetAll selects all recipients from the database
 func (i *Instance) GetAll() ([]*model.Recipient, error) {
 	recipients := []*model.Recipient{}
 	result := i.Gorm.Find(&recipients)
 	if result.RowsAffected == 0 {
 		if result.Error != nil {
 			log.Print("Database error: ", result.Error)
-			return nil, result.Error
+			return nil, &DbError{originalError: result.Error}
 		}
 		log.Print("Recipient table is empty")
 		return nil, errors.New("Recipient table is empty")
 	}
 	log.Printf("Get returned %d recipients", result.RowsAffected)
-	return nil, nil
+	return recipients, nil
 }
 
+// Add creates new recipient in the database based on provided name, email and phone number
 func (i *Instance) Add(r *model.Recipient) (int64, error) {
 	result := i.Gorm.Create(r)
 	if result.RowsAffected == 0 {
 		if result.Error != nil {
 			log.Print("Database error: ", result.Error)
-			return 0, result.Error
+			return 0, &DbError{originalError: result.Error}
 		}
 		log.Print("Recipient wasn't stored to db")
 		return 0, errors.New("Recipient wasn't stored to db")

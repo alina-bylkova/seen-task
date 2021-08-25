@@ -1,6 +1,6 @@
 package model
 
-// Event is a database object
+// Event is a database object containing events infomation
 type Event struct {
 	RecipientID int64 `gorm:"not null" json:"recipient_id"`
 	VideoID     int64 `gorm:"not null" json:"video_id"`
