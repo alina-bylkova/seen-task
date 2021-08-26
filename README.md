@@ -20,7 +20,11 @@ Additionally it supports creation of new recipients and events.
 
 ## Dependencies
 
-Modules get fetched automatically.
+To fetch dependencies, run:
+
+```
+$ go mod download
+```
 
 If things start getting messy, run:
 
@@ -44,12 +48,14 @@ $ go mod tidy
 
 ## Secrets
 
-The following secret variables are stored in the secrets.env file which is typically should be excluded from the repo (here is just for the demo):
+The following secret variables are stored in the `secrets.env` file which is typically should be excluded from the repo (here is just for the demo):
 
 - db_user
 - db_password
 - auth_user
 - auth_password
+
+This will overwrite environment variables.
 
 ## Database
 PostgreSql is used for storing data.
@@ -85,10 +91,10 @@ It will be running at http://localhost:8080
 
 ## Endpoints
 
-Get all recipients:
+Get all recipients (any query argument will be used for searching in the database):
 
 ```
-GET api/recipients
+GET api/recipients?name=&email=&phone=
 ```
 
 Get specific recipient by id:
@@ -111,7 +117,8 @@ POST api/events
 ## Authentication
 
 Basic auth is used for authentication.
-Pass this token `c2VlbjpwYXNz` to the Authentication header when sending requests to the server.
+Use basic auth with username: `seen` and password: `pass`.
+Or simply pass this token `c2VlbjpwYXNz` to the Authentication header when sending requests to the server.
 
 ## Testing
 

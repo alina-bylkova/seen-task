@@ -62,13 +62,8 @@ func (i *Instance) Get(r *model.Recipient) ([]*model.Recipient, error) {
 	result := i.Gorm.
 		Where(r).
 		Find(&recipients)
-	if result.RowsAffected == 0 {
-		if result.Error != nil {
-			log.Print("Database error: ", result.Error)
-			return nil, &DbError{originalError: result.Error}
-		}
-		log.Print("Recipient(s) not found: ", r)
-		return nil, errors.New("Recipient(s) not found")
+	if err := checkDbResult(result, "Recipient(s) not found"); err != nil {
+		return nil, err
 	}
 	log.Printf("Get returned %d recipient(s)", result.RowsAffected)
 	return recipients, nil
@@ -78,13 +73,8 @@ func (i *Instance) Get(r *model.Recipient) ([]*model.Recipient, error) {
 func (i *Instance) GetAll() ([]*model.Recipient, error) {
 	recipients := []*model.Recipient{}
 	result := i.Gorm.Find(&recipients)
-	if result.RowsAffected == 0 {
-		if result.Error != nil {
-			log.Print("Database error: ", result.Error)
-			return nil, &DbError{originalError: result.Error}
-		}
-		log.Print("Recipient table is empty")
-		return nil, errors.New("Recipient table is empty")
+	if err := checkDbResult(result, "Recipient table is empty"); err != nil {
+		return nil, err
 	}
 	log.Printf("Get returned %d recipients", result.RowsAffected)
 	return recipients, nil
@@ -93,13 +83,8 @@ func (i *Instance) GetAll() ([]*model.Recipient, error) {
 // AddRecipient creates new recipient in the database based on provided name, email and phone number
 func (i *Instance) AddRecipient(r *model.Recipient) (int64, error) {
 	result := i.Gorm.Create(r)
-	if result.RowsAffected == 0 {
-		if result.Error != nil {
-			log.Print("Database error: ", result.Error)
-			return 0, &DbError{originalError: result.Error}
-		}
-		log.Print("Recipient wasn't stored to db")
-		return 0, errors.New("Recipient wasn't stored to db")
+	if err := checkDbResult(result, "Recipient wasn't stored to db"); err != nil {
+		return 0, err
 	}
 	return r.ID, nil
 }
@@ -121,38 +106,34 @@ func (i *Instance) AddEvent(e *dto.Event) error {
 		event.RecipientID = e.RecipientID
 		event.VideoID = e.VideoID
 
-		if e.EventType == dto.LpHits {
-			event.LpHits += 1
-		}
-		if e.EventType == dto.VideoPlays {
-			event.VideoPlays += 1
-		}
+		updateEvent(e.EventType, event)
+
 		createResult := i.Gorm.Create(event)
-		if createResult.RowsAffected == 0 {
-			if createResult.Error != nil {
-				log.Print("Database error: ", createResult.Error)
-				return &DbError{originalError: createResult.Error}
-			}
-			log.Print("Event wasn't stored to db")
-			return errors.New("Event wasn't stored to db")
-		}
-		return nil
+		return checkDbResult(createResult, "Event wasn't stored to db")
 	}
-	if e.EventType == dto.LpHits {
-		event.LpHits += 1
-	}
-	if e.EventType == dto.VideoPlays {
-		event.VideoPlays += 1
-	}
+	updateEvent(e.EventType, event)
 
 	updateResult := i.Gorm.Save(event)
-	if updateResult.RowsAffected == 0 {
-		if updateResult.Error != nil {
-			log.Print("Database error: ", updateResult.Error)
-			return &DbError{originalError: updateResult.Error}
+	return checkDbResult(updateResult, "Event wasn't stored to db")
+}
+
+func updateEvent(eventType string, event *model.Event) {
+	if eventType == dto.LpHits {
+		event.LpHits += 1
+	}
+	if eventType == dto.VideoPlays {
+		event.VideoPlays += 1
+	}
+}
+
+func checkDbResult(result *gorm.DB, message string) error {
+	if result.RowsAffected == 0 {
+		if result.Error != nil {
+			log.Print("Database error: ", result.Error)
+			return &DbError{originalError: result.Error}
 		}
-		log.Print("Event wasn't updated in db")
-		return errors.New("Event wasn't updated in db")
+		log.Print(message)
+		return errors.New(message)
 	}
 	return nil
 }
