@@ -64,5 +64,7 @@ func main() {
 		log.Fatal("Server forced to shutdown: ", err)
 	}
 
+	db.CloseDb()
+
 	log.Println("Server exiting")
 }
